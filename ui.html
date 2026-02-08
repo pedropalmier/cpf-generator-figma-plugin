@@ -4,26 +4,49 @@
 <style>
   body,
   html {
-    height: 100%;
     margin: 0;
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 4px;
   }
 
-  .button-container {
+  .textbox-gray {
     display: flex;
-    gap: 12px;
+    width: 128px;
+    height: 32px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    background: #F3F3F3;
+  }
+
+  .icon--swap {
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon--swap:hover {
+    background-color: #F3F3F3;
+    border-radius: 4px;
+  }
+
+  .icon--swap:active {
+    background-color: #D7D7D7;
+    border-radius: 4px;
   }
 </style>
 
-<div class="type type--xlarge" id="cpf-display">12345678900</div>
-<div class="button-container">
-  <button class="button button--primary" id="btn-copy">Copy</button>
-  <button class="button button--secondary" id="btn-generate">New</button>
+<div class="textbox-gray" id="textbox">
+  <div class="type type--xlarge" id="cpf-display">12345678900</div>
 </div>
+
+<div class="icon icon--swap" id="btn-generate"></div>
 
 <script>
   function generateCPF() {
@@ -55,33 +78,14 @@
     return cpf;
   }
 
-  function copyCPF() {
-    const cpfText = document.getElementById('cpf-display').textContent;
-    parent.postMessage({ pluginMessage: { type: 'copy', text: cpfText } }, '*');
-  }
-
   function displayNewCPF() {
     const generatedCPF = generateCPF();
     document.getElementById('cpf-display').textContent = generatedCPF;
   }
 
   // Event listeners
-  document.getElementById('btn-copy').addEventListener('click', copyCPF);
   document.getElementById('btn-generate').addEventListener('click', displayNewCPF);
 
-  // Handle message from code.ts
-  window.onmessage = (event) => {
-    const msg = event.data.pluginMessage;
-    if (msg && msg.type === 'copy-to-clipboard') {
-      // Create temporary element to copy
-      const textarea = document.createElement('textarea');
-      textarea.value = msg.text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
-  };
 
   // Generate CPF on load
   displayNewCPF();
