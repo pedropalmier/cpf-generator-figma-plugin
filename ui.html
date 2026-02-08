@@ -1,0 +1,88 @@
+<!-- Standard link tag-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/figma-plugin-ds.css">
+
+<style>
+  body,
+  html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 12px;
+  }
+</style>
+
+<div class="type type--xlarge" id="cpf-display">12345678900</div>
+<div class="button-container">
+  <button class="button button--primary" id="btn-copy">Copy</button>
+  <button class="button button--secondary" id="btn-generate">New</button>
+</div>
+
+<script>
+  function generateCPF() {
+    // Generate 9 random digits
+    let cpf = '';
+    for (let i = 0; i < 9; i++) {
+      cpf += Math.floor(Math.random() * 10);
+    }
+
+    // Calculate first verification digit
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let remainder = sum % 11;
+    let digit1 = remainder < 2 ? 0 : 11 - remainder;
+    cpf += digit1;
+
+    // Calculate second verification digit
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    remainder = sum % 11;
+    let digit2 = remainder < 2 ? 0 : 11 - remainder;
+    cpf += digit2;
+
+    // Return without formatting (11 sequential digits)
+    return cpf;
+  }
+
+  function copyCPF() {
+    const cpfText = document.getElementById('cpf-display').textContent;
+    parent.postMessage({ pluginMessage: { type: 'copy', text: cpfText } }, '*');
+  }
+
+  function displayNewCPF() {
+    const generatedCPF = generateCPF();
+    document.getElementById('cpf-display').textContent = generatedCPF;
+  }
+
+  // Event listeners
+  document.getElementById('btn-copy').addEventListener('click', copyCPF);
+  document.getElementById('btn-generate').addEventListener('click', displayNewCPF);
+
+  // Handle message from code.ts
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (msg && msg.type === 'copy-to-clipboard') {
+      // Create temporary element to copy
+      const textarea = document.createElement('textarea');
+      textarea.value = msg.text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+  };
+
+  // Generate CPF on load
+  displayNewCPF();
+</script>
