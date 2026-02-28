@@ -3,6 +3,7 @@ figma.ui.resize(369, 64);
 
 figma.ui.onmessage = msg => {
   if (msg.type === 'copy') {
+    figma.notify('CPF copied!');
     figma.ui.postMessage({ type: 'copy-to-clipboard', text: msg.text });
   }
 };

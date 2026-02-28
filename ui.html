@@ -80,21 +80,20 @@
 
 <!-- ///////// Start of scripts /////////-->
 <script>
-  let currentCPF = ''; // Guarda o CPF sem formatação
+  let currentCPF = '';
 
   window.onmessage = (event) => {
-  const msg = event.data.pluginMessage;
-  if (!msg) return;
-  if (msg.type === 'copy-to-clipboard') {
-    // Método alternativo para copiar em plugins Figma
-    const textarea = document.createElement('textarea');
-    textarea.value = msg.text;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-  }
-};
+    const msg = event.data.pluginMessage;
+    if (!msg) return;
+    if (msg.type === 'copy-to-clipboard') {
+      const textarea = document.createElement('textarea');
+      textarea.value = msg.text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+  };
 
   function generateCPF() {
     let cpf = '';
@@ -140,10 +139,8 @@
     const isFormatted = document.getElementById('toggle-cpf-format').checked;
     const textToCopy = isFormatted ? formatCPF(currentCPF) : currentCPF;
 
-    // Envia para code.ts
     parent.postMessage({ pluginMessage: { type: 'copy', text: textToCopy } }, '*');
 
-    // Muda o texto do botão
     const button = document.getElementById('btn-copy');
     button.textContent = 'Copied!';
 
@@ -152,11 +149,9 @@
     }, 2000);
   }
 
-  // Event listeners
   document.getElementById('btn-generate').addEventListener('click', displayNewCPF);
   document.getElementById('btn-copy').addEventListener('click', copyCPF);
   document.getElementById('toggle-cpf-format').addEventListener('change', displayCPF);
 
-  // Generate CPF on load
   displayNewCPF();
 </script>
