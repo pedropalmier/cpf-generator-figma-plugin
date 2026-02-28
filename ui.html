@@ -1,6 +1,7 @@
-<!-- Standard link tag-->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/figma-plugin-ds.css">
 
+
+<!-- ///////// Start of styles /////////-->
 <style>
   body,
   html {
@@ -40,23 +41,67 @@
     background-color: #D7D7D7;
     border-radius: 4px;
   }
+
+  .button--primary {
+    width: 72px;
+    min-width: 72px;
+    justify-content: center;
+    align-items: center;
+    /* Garante que não muda */
+  }
+
+  .button--primary:active {
+    background-color: #005AC4;
+  }
 </style>
 
-<div class="textbox-gray" id="textbox">
-  <div class="type type--xlarge" id="cpf-display">12345678900</div>
+<!-- ///////// Start of HTML elements /////////-->
+
+<!-- Switch -->
+<div class="switch">
+  <input class="switch__toggle" type="checkbox" id="toggle-cpf-format">
+  <label class="switch__label" for="toggle-cpf-format">Format</label>
 </div>
 
+
+<!-- CPF Display -->
+<div class="textbox-gray" id="textbox">
+  <div class="type type--xlarge" id="cpf-display">12345678901</div>
+</div>
+
+
+<!-- Swap icon -->
 <div class="icon icon--swap" id="btn-generate"></div>
 
+
+<!-- Primary -->
+<button class='button button--primary' id="btn-copy">Copy</button>
+
+
+<!-- ///////// Start of scripts /////////-->
 <script>
+  let currentCPF = ''; // Guarda o CPF sem formatação
+
+  window.onmessage = (event) => {
+  const msg = event.data.pluginMessage;
+  if (!msg) return;
+  if (msg.type === 'copy-to-clipboard') {
+    // Método alternativo para copiar em plugins Figma
+    const textarea = document.createElement('textarea');
+    textarea.value = msg.text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  }
+};
+
   function generateCPF() {
-    // Generate 9 random digits
     let cpf = '';
     for (let i = 0; i < 9; i++) {
       cpf += Math.floor(Math.random() * 10);
     }
 
-    // Calculate first verification digit
     let sum = 0;
     for (let i = 0; i < 9; i++) {
       sum += parseInt(cpf.charAt(i)) * (10 - i);
@@ -65,7 +110,6 @@
     let digit1 = remainder < 2 ? 0 : 11 - remainder;
     cpf += digit1;
 
-    // Calculate second verification digit
     sum = 0;
     for (let i = 0; i < 10; i++) {
       sum += parseInt(cpf.charAt(i)) * (11 - i);
@@ -74,18 +118,44 @@
     let digit2 = remainder < 2 ? 0 : 11 - remainder;
     cpf += digit2;
 
-    // Return without formatting (11 sequential digits)
     return cpf;
   }
 
+  function formatCPF(cpf) {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+
+  function displayCPF() {
+    const isFormatted = document.getElementById('toggle-cpf-format').checked;
+    const displayText = isFormatted ? formatCPF(currentCPF) : currentCPF;
+    document.getElementById('cpf-display').textContent = displayText;
+  }
+
   function displayNewCPF() {
-    const generatedCPF = generateCPF();
-    document.getElementById('cpf-display').textContent = generatedCPF;
+    currentCPF = generateCPF();
+    displayCPF();
+  }
+
+  function copyCPF() {
+    const isFormatted = document.getElementById('toggle-cpf-format').checked;
+    const textToCopy = isFormatted ? formatCPF(currentCPF) : currentCPF;
+
+    // Envia para code.ts
+    parent.postMessage({ pluginMessage: { type: 'copy', text: textToCopy } }, '*');
+
+    // Muda o texto do botão
+    const button = document.getElementById('btn-copy');
+    button.textContent = 'Copied!';
+
+    setTimeout(() => {
+      button.textContent = 'Copy';
+    }, 2000);
   }
 
   // Event listeners
   document.getElementById('btn-generate').addEventListener('click', displayNewCPF);
-
+  document.getElementById('btn-copy').addEventListener('click', copyCPF);
+  document.getElementById('toggle-cpf-format').addEventListener('change', displayCPF);
 
   // Generate CPF on load
   displayNewCPF();
