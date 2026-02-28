@@ -1,6 +1,6 @@
 # CPF Generator - Figma Plugin
 
-[![Plugin Thumbnail](images/thumbnail.png)](https://www.figma.com/community/plugin/1602069334179415325/cpf-generator)
+[![Plugin Thumbnail](images/cpf-thumbnail.png)](https://www.figma.com/community/plugin/1602069334179415325/cpf-generator)
 
 A simple and minimalist Figma plugin to generate valid Brazilian CPF numbers for testing and prototyping purposes.
 
